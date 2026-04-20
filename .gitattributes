@@ -1,0 +1,8 @@
+# Standardmäßig alle Dateien mit LF normalisieren
+* text=auto
+
+# Shell-Scripts immer mit LF (Linux braucht LF für Docker)
+*.sh text eol=lf
+
+# Dockerfile mit LF
+Dockerfile* text eol=lf
