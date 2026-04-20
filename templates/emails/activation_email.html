@@ -1,46 +1,90 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirm your email</title>
-</head>
-<body style="margin:0;padding:0;background-color:#ffffff;font-family:Arial,sans-serif;color:#333333;">
-  <table width="100%" cellpadding="0" cellspacing="0">
-    <tr>
-      <td align="center" style="padding:40px 20px;">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Confirm your email</title>
+  </head>
+  <body
+    style="
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      font-family: Arial, sans-serif;
+      color: #333333;
+    "
+  >
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td align="center" style="padding: 40px 20px">
+          <table
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="max-width: 600px; width: 100%"
+          >
+            <tr>
+              <td align="center" style="padding-bottom: 32px">
+                <span
+                  style="
+                    font-size: 32px;
+                    font-weight: bold;
+                    color: #5000e8;
+                    font-family: Arial, sans-serif;
+                  "
+                >
+                  &#9658;&nbsp;VIDEOFLIX
+                </span>
+              </td>
+            </tr>
 
-          <tr>
-            <td align="center" style="padding-bottom:32px;">
-              <span style="font-size:32px;font-weight:bold;color:#5000e8;font-family:Arial,sans-serif;">&#9658;&nbsp;VIDEOFLIX</span>
-            </td>
-          </tr>
+            <tr>
+              <td style="font-size: 16px; line-height: 1.6">
+                <p>
+                  Dear
+                  <span style="color: #5000e8">{{ email }},</span>
+                </p>
+                <p>
+                  Thank you for registering with
+                  <span style="color: #5000e8">Videoflix</span>
+                  . To complete your registration and verify your email address,
+                  please click the link below:
+                </p>
+              </td>
+            </tr>
 
-          <tr>
-            <td style="font-size:16px;line-height:1.6;">
-              <p>Dear <span style="color:#5000e8;">{{ email }},</span></p>
-              <p>Thank you for registering with <span style="color:#5000e8;">Videoflix</span>. To complete your registration and verify your email address, please click the link below:</p>
-            </td>
-          </tr>
+            <tr>
+              <td style="padding: 24px 0">
+                <a
+                  href="{{ link }}"
+                  style="
+                    background-color: #2a3be8;
+                    color: #ffffff;
+                    padding: 14px 28px;
+                    border-radius: 30px;
+                    text-decoration: none;
+                    font-weight: bold;
+                    font-size: 16px;
+                  "
+                >
+                  Activate account
+                </a>
+              </td>
+            </tr>
 
-          <tr>
-            <td style="padding:24px 0;">
-              <a href="{{ link }}" style="background-color:#2a3be8;color:#ffffff;padding:14px 28px;border-radius:30px;text-decoration:none;font-weight:bold;font-size:16px;">Activate account</a>
-            </td>
-          </tr>
-
-          <tr>
-            <td style="font-size:16px;line-height:1.6;">
-              <p>If you did not create an account with us, please disregard this email.</p>
-              <p>Best regards,</p>
-              <p>Your Videoflix Team.</p>
-            </td>
-          </tr>
-
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
+            <tr>
+              <td style="font-size: 16px; line-height: 1.6">
+                <p>
+                  If you did not create an account with us, please disregard
+                  this email.
+                </p>
+                <p>Best regards,</p>
+                <p>Your Videoflix Team.</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
 </html>
