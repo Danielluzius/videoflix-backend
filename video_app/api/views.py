@@ -4,6 +4,7 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from video_app import services
 from video_app.api.serializers import VideoSerializer, VideoUploadSerializer
@@ -18,6 +19,7 @@ class VideoListView(APIView):
 
 
 class VideoUploadView(APIView):
+    permission_classes = [IsAdminUser]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
@@ -31,26 +33,21 @@ class VideoUploadView(APIView):
         )
 
 
-class HLSManifestView(APIView):
-    def get(self, request, video_id):
-        video = services.get_video_by_id(video_id)
-        if not video or not video.hls_path:
+class HLSPlaylistView(APIView):
+    def get(self, request, video_id, resolution):
+        playlist_path = os.path.join(
+            settings.MEDIA_ROOT, 'videos', 'hls', str(video_id), resolution, 'index.m3u8'
+        )
+        if not os.path.exists(playlist_path):
             raise Http404
-        manifest_path = os.path.join(settings.MEDIA_ROOT, video.hls_path)
-        if not os.path.exists(manifest_path):
-            raise Http404
-        return FileResponse(open(manifest_path, 'rb'), content_type='application/vnd.apple.mpegurl')
+        return FileResponse(open(playlist_path, 'rb'), content_type='application/vnd.apple.mpegurl')
 
 
 class HLSSegmentView(APIView):
-    def get(self, request, video_id, quality, filename):
+    def get(self, request, video_id, resolution, segment):
         segment_path = os.path.join(
-            settings.MEDIA_ROOT, 'videos', 'hls', str(video_id), quality, filename
+            settings.MEDIA_ROOT, 'videos', 'hls', str(video_id), resolution, segment
         )
         if not os.path.exists(segment_path):
             raise Http404
-        if filename.endswith('.m3u8'):
-            content_type = 'application/vnd.apple.mpegurl'
-        else:
-            content_type = 'video/MP2T'
-        return FileResponse(open(segment_path, 'rb'), content_type=content_type)
+        return FileResponse(open(segment_path, 'rb'), content_type='video/MP2T')
