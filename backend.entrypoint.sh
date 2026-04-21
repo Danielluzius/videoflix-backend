@@ -1,23 +1,22 @@
 #!/bin/sh
 set -e
 
-echo "Warte auf PostgreSQL auf $DB_HOST:$DB_PORT..."
-# -q für "quiet" (keine Ausgabe außer Fehlern)
-# Die Schleife läuft, solange pg_isready *nicht* erfolgreich ist (Exit-Code != 0)
+echo "Waiting for PostgreSQL at $DB_HOST:$DB_PORT..."
+# -q for "quiet" (no output except errors)
+# Loop runs as long as pg_isready does NOT succeed (exit code != 0)
 while ! pg_isready -h "$DB_HOST" -p "$DB_PORT" -q; do
-  echo "PostgreSQL ist nicht erreichbar - schlafe 1 Sekunde"
+  echo "PostgreSQL is not ready - sleeping 1 second"
   sleep 1
 done
 
-echo "PostgreSQL ist bereit - fahre fort..."
+echo "PostgreSQL is ready - continuing..."
 
-# Deine originalen Befehle (ohne wait_for_db)
+# Run Django management commands
 python manage.py collectstatic --noinput
 python manage.py makemigrations
 python manage.py migrate
 
 # Create a superuser using environment variables
-# (Dein Superuser-Erstellungs-Code bleibt gleich)
 python manage.py shell <<EOF
 import os
 from django.contrib.auth import get_user_model
