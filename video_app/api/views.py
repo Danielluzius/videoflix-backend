@@ -8,7 +8,6 @@ from rest_framework.permissions import IsAdminUser
 from rest_framework.parsers import MultiPartParser, FormParser
 from video_app import services
 from video_app.api.serializers import VideoSerializer, VideoUploadSerializer
-from video_app.tasks import process_video
 
 
 class VideoListView(APIView):
@@ -26,7 +25,6 @@ class VideoUploadView(APIView):
         serializer = VideoUploadSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         video = serializer.save()
-        process_video.delay(video.id)
         return Response(
             {'id': video.id, 'detail': 'Upload successful. Video is being processed.'},
             status=status.HTTP_201_CREATED,

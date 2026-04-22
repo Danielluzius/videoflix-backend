@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_rq',
+    'django_ratelimit',
     # Local
     'user_app',
     'video_app',
