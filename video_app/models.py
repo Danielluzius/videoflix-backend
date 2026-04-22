@@ -25,3 +25,8 @@ class Video(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = 'Video'
+        verbose_name_plural = 'Videos'
+        ordering = ['-created_at']
+
