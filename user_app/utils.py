@@ -24,7 +24,7 @@ def send_activation_email(user):
     html = render_to_string('emails/activation_email.html', context)
     text = f"Aktiviere deinen Account: {link}"
     msg = EmailMultiAlternatives(
-        subject='Videoflix – Account aktivieren',
+        subject='Confirm your email',
         body=text,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[user.email],
@@ -39,7 +39,7 @@ def send_password_reset_email(user):
     html = render_to_string('emails/password_reset_email.html', context)
     text = f"Passwort zurücksetzen: {link}"
     msg = EmailMultiAlternatives(
-        subject='Videoflix – Passwort zurücksetzen',
+        subject='Reset your Password',
         body=text,
         from_email=settings.DEFAULT_FROM_EMAIL,
         to=[user.email],
