@@ -8,12 +8,14 @@ This project was developed as part of the Developer Akademie curriculum.
 
 ## Quick Start with Docker
 
-**Step 1 — Copy the environment file:**
+**Step 1 ï¿½ Copy the environment file:**
+
 ```bash
 cp .env.example .env
 ```
 
-**Step 2 — Fill in your values in `.env`** (minimum required):
+**Step 2 ï¿½ Fill in your values in `.env`** (minimum required):
+
 ```env
 SECRET_KEY=your-secret-key
 DB_NAME=videoflix
@@ -26,10 +28,15 @@ DEFAULT_FROM_EMAIL=you@example.com
 FRONTEND_URL=http://127.0.0.1:5500
 ```
 
-**Step 3 — Start all containers:**
+> **Note:** You need a working SMTP account to receive activation and password reset emails. Any provider works (Gmail, Outlook, etc.). For Gmail, use an [App Password](https://myaccount.google.com/apppasswords) with `smtp.gmail.com` on port `587`.
+
+**Step 3 ï¿½ Start all containers:**
+
 ```bash
 docker compose up --build
 ```
+
+> **No additional software required.** FFmpeg, PostgreSQL, and Redis are all included in the Docker setup.
 
 The API is available at `http://localhost:8000/api/`.
 The admin panel is available at `http://localhost:8000/admin/` (login: `admin@example.com` / `adminpassword`).
@@ -132,13 +139,14 @@ All endpoints are prefixed with `/api/`.
 ### Authentication
 
 <details>
-<summary>POST /api/register/ — Register a new user</summary>
+<summary>POST /api/register/ ï¿½ Register a new user</summary>
 
 Creates a new user account. The account is inactive until the activation link in the confirmation email is clicked.
 
 **Rate limit:** 5 requests per minute per IP
 
 **Request body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -147,27 +155,28 @@ Creates a new user account. The account is inactive until the activation link in
 }
 ```
 
-**Responses:** `201` Created · `400` Validation error · `429` Rate limit exceeded
+**Responses:** `201` Created ï¿½ `400` Validation error ï¿½ `429` Rate limit exceeded
 
 </details>
 
 <details>
-<summary>GET /api/activate/&lt;uidb64&gt;/&lt;token&gt;/ — Activate account</summary>
+<summary>GET /api/activate/&lt;uidb64&gt;/&lt;token&gt;/ ï¿½ Activate account</summary>
 
 Activates a user account using the token from the confirmation email.
 
-**Responses:** `200` Success · `400` Invalid or expired token
+**Responses:** `200` Success ï¿½ `400` Invalid or expired token
 
 </details>
 
 <details>
-<summary>POST /api/login/ — Login</summary>
+<summary>POST /api/login/ ï¿½ Login</summary>
 
 Authenticates the user and sets two HTTP-only cookies: `access_token` (20 min) and `refresh_token` (7 days).
 
 **Rate limit:** 10 requests per minute per IP
 
 **Request body:**
+
 ```json
 {
   "email": "user@example.com",
@@ -175,40 +184,41 @@ Authenticates the user and sets two HTTP-only cookies: `access_token` (20 min) a
 }
 ```
 
-**Responses:** `200` Sets `access_token` + `refresh_token` cookies · `401` Invalid credentials · `429` Rate limit exceeded
+**Responses:** `200` Sets `access_token` + `refresh_token` cookies ï¿½ `401` Invalid credentials ï¿½ `429` Rate limit exceeded
 
 </details>
 
 <details>
-<summary>POST /api/logout/ — Logout</summary>
+<summary>POST /api/logout/ ï¿½ Logout</summary>
 
 Blacklists the refresh token and deletes both cookies.
 
 **Requires:** `refresh_token` cookie
 
-**Responses:** `200` Success · `400` Refresh token missing
+**Responses:** `200` Success ï¿½ `400` Refresh token missing
 
 </details>
 
 <details>
-<summary>POST /api/token/refresh/ — Refresh access token</summary>
+<summary>POST /api/token/refresh/ ï¿½ Refresh access token</summary>
 
 Issues a new `access_token` cookie using the existing `refresh_token` cookie.
 
 **Requires:** `refresh_token` cookie
 
-**Responses:** `200` New `access_token` cookie set · `400` Token missing · `401` Invalid or expired
+**Responses:** `200` New `access_token` cookie set ï¿½ `400` Token missing ï¿½ `401` Invalid or expired
 
 </details>
 
 <details>
-<summary>POST /api/password_reset/ — Request password reset</summary>
+<summary>POST /api/password_reset/ ï¿½ Request password reset</summary>
 
 Sends a password reset email. The response is always identical regardless of whether the email exists (security).
 
 **Rate limit:** 5 requests per minute per IP
 
 **Request body:**
+
 ```json
 {
   "email": "user@example.com"
@@ -220,11 +230,12 @@ Sends a password reset email. The response is always identical regardless of whe
 </details>
 
 <details>
-<summary>POST /api/password_confirm/&lt;uidb64&gt;/&lt;token&gt;/ — Confirm new password</summary>
+<summary>POST /api/password_confirm/&lt;uidb64&gt;/&lt;token&gt;/ ï¿½ Confirm new password</summary>
 
 Sets the new password using the token from the password reset email.
 
 **Request body:**
+
 ```json
 {
   "new_password": "newsecurepassword",
@@ -232,25 +243,25 @@ Sets the new password using the token from the password reset email.
 }
 ```
 
-**Responses:** `200` Success · `400` Invalid or expired token
+**Responses:** `200` Success ï¿½ `400` Invalid or expired token
 
 </details>
 
 ### Videos
 
 <details>
-<summary>GET /api/video/ — List all videos</summary>
+<summary>GET /api/video/ ï¿½ List all videos</summary>
 
 Returns all fully processed videos (HLS conversion complete), ordered by creation date descending.
 
 **Requires:** Authentication (access_token cookie)
 
-**Responses:** `200` Video list · `401` Not authenticated
+**Responses:** `200` Video list ï¿½ `401` Not authenticated
 
 </details>
 
 <details>
-<summary>POST /api/video/upload/ — Upload a video (admin only)</summary>
+<summary>POST /api/video/upload/ ï¿½ Upload a video (admin only)</summary>
 
 Uploads a new video and queues it for background processing (HLS conversion + thumbnail via FFmpeg).
 
@@ -264,29 +275,29 @@ Uploads a new video and queues it for background processing (HLS conversion + th
 | `category`    | string (choice) | yes      |
 | `video_file`  | file            | yes      |
 
-**Responses:** `201` Upload queued · `400` Validation error · `403` Not admin
+**Responses:** `201` Upload queued ï¿½ `400` Validation error ï¿½ `403` Not admin
 
 </details>
 
 <details>
-<summary>GET /api/video/&lt;video_id&gt;/&lt;resolution&gt;/index.m3u8 — HLS playlist</summary>
+<summary>GET /api/video/&lt;video_id&gt;/&lt;resolution&gt;/index.m3u8 ï¿½ HLS playlist</summary>
 
 Returns the HLS playlist for a specific video and resolution (`480p`, `720p`, `1080p`).
 
 **Requires:** Authentication (access_token cookie)
 
-**Responses:** `200` Playlist file · `404` Not found
+**Responses:** `200` Playlist file ï¿½ `404` Not found
 
 </details>
 
 <details>
-<summary>GET /api/video/&lt;video_id&gt;/&lt;resolution&gt;/&lt;segment&gt;/ — HLS segment</summary>
+<summary>GET /api/video/&lt;video_id&gt;/&lt;resolution&gt;/&lt;segment&gt;/ ï¿½ HLS segment</summary>
 
 Returns a single `.ts` video segment for playback.
 
 **Requires:** Authentication (access_token cookie)
 
-**Responses:** `200` Binary segment · `404` Not found
+**Responses:** `200` Binary segment ï¿½ `404` Not found
 
 </details>
 
@@ -297,11 +308,13 @@ Returns a single `.ts` video segment for playback.
 Django RQ runs two types of background tasks:
 
 **Email tasks** (`user_app/tasks.py`)
-- `task_send_activation_email(user)` — sends account activation email after registration
-- `task_send_password_reset_email(user)` — sends password reset email
+
+- `task_send_activation_email(user)` ï¿½ sends account activation email after registration
+- `task_send_password_reset_email(user)` ï¿½ sends password reset email
 
 **Video processing** (`video_app/tasks.py`)
-- `process_video(video_id)` — triggered via `post_save` signal on new Video uploads
+
+- `process_video(video_id)` ï¿½ triggered via `post_save` signal on new Video uploads
   1. Runs FFmpeg ? produces 480p / 720p / 1080p HLS variants + `master.m3u8`
   2. Extracts thumbnail at the 3-second mark
   3. Saves paths on the Video model and sets `processing_done = True`
