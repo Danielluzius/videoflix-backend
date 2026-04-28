@@ -1,3 +1,4 @@
+"""FFmpeg helpers: HLS conversion (480p/720p/1080p) and thumbnail extraction."""
 import subprocess
 import os
 
@@ -14,6 +15,7 @@ RESOLUTION_MAP = {'480p': '854x480', '720p': '1280x720', '1080p': '1920x1080'}
 
 
 def _build_ffmpeg_cmd(video_path, res, playlist_path, segment_pattern):
+    """Return the FFmpeg command list for encoding a single HLS resolution variant."""
     video_opts = ['-c:v', 'libx264', '-crf', '20', '-sc_threshold', '0', '-g', '48', '-keyint_min', '48']
     bitrate_opts = ['-b:v', res['bitrate'], '-maxrate', res['maxrate'], '-bufsize', res['bufsize']]
     audio_opts = ['-c:a', 'aac', '-b:a', res['audio']]
@@ -23,6 +25,7 @@ def _build_ffmpeg_cmd(video_path, res, playlist_path, segment_pattern):
 
 
 def _convert_resolution(video_path, output_dir, res):
+    """Encode a single resolution variant and return (name, bitrate, playlist_path)."""
     res_dir = os.path.join(output_dir, res['name'])
     os.makedirs(res_dir, exist_ok=True)
     playlist_path = os.path.join(res_dir, 'index.m3u8')
@@ -33,6 +36,7 @@ def _convert_resolution(video_path, output_dir, res):
 
 
 def _write_master_playlist(output_dir, variant_playlists):
+    """Write master.m3u8 that references all resolution variants and return its path."""
     master_path = os.path.join(output_dir, 'master.m3u8')
     with open(master_path, 'w') as f:
         f.write('#EXTM3U\n')
@@ -45,12 +49,14 @@ def _write_master_playlist(output_dir, variant_playlists):
 
 
 def convert_to_hls(video_path: str, output_dir: str) -> str:
+    """Convert the source video to 480p/720p/1080p HLS variants and return the master playlist path."""
     os.makedirs(output_dir, exist_ok=True)
     variant_playlists = [_convert_resolution(video_path, output_dir, res) for res in RESOLUTIONS]
     return _write_master_playlist(output_dir, variant_playlists)
 
 
 def generate_thumbnail(video_path: str, output_path: str) -> str:
+    """Extract a single frame at the 3-second mark and save it as a 1280x720 JPEG."""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     cmd = [
         'ffmpeg', '-y', '-i', video_path,

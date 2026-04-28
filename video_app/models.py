@@ -2,6 +2,8 @@ from django.db import models
 
 
 class Video(models.Model):
+    """Model representing an uploaded video with HLS processing metadata."""
+
     CATEGORY_CHOICES = [
         ('action', 'Action'),
         ('comedy', 'Comedy'),

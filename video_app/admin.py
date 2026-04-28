@@ -4,6 +4,7 @@ from video_app.models import Video
 
 @admin.register(Video)
 class VideoAdmin(admin.ModelAdmin):
+    """Admin configuration for Video: list display with processing status and search."""
     list_display = ['id', 'title', 'category', 'processing_done', 'created_at']
     list_filter = ['category', 'processing_done']
     search_fields = ['title', 'description']

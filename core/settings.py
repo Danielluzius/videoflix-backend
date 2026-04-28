@@ -149,6 +149,20 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 900,
         'REDIS_CLIENT_KWARGS': {},
     },
+    'emails': {
+        'HOST': os.environ.get('REDIS_HOST', 'redis'),
+        'PORT': os.environ.get('REDIS_PORT', 6379),
+        'DB': os.environ.get('REDIS_DB', 0),
+        'DEFAULT_TIMEOUT': 120,
+        'REDIS_CLIENT_KWARGS': {},
+    },
+    'videos': {
+        'HOST': os.environ.get('REDIS_HOST', 'redis'),
+        'PORT': os.environ.get('REDIS_PORT', 6379),
+        'DB': os.environ.get('REDIS_DB', 0),
+        'DEFAULT_TIMEOUT': 3600,
+        'REDIS_CLIENT_KWARGS': {},
+    },
 }
 
 # Email

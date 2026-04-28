@@ -5,6 +5,7 @@ from user_app.models import CustomUser
 
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
+    """Admin configuration for CustomUser: email-based auth with permission management."""
     model = CustomUser
     list_display = ['email', 'is_active', 'is_staff']
     list_filter = ['is_active', 'is_staff']

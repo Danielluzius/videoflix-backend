@@ -344,7 +344,7 @@ Only videos with `processing_done = True` are returned by the video list endpoin
 RQ uses `os.fork()` internally, which is not available on Windows. Use `SimpleWorker` for local development:
 
 ```bash
-python manage.py rqworker default --worker-class rq.SimpleWorker
+python manage.py rqworker emails videos default --worker-class rq.SimpleWorker
 ```
 
 This is handled automatically inside the Docker container (Linux).

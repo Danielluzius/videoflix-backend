@@ -20,9 +20,12 @@ from user_app.tasks import task_send_activation_email, task_send_password_reset_
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
 class RegisterView(APIView):
+    """Register a new user account and send a confirmation email."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """Create an inactive user and dispatch the activation email task."""
         serializer = RegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = services.create_user(
@@ -39,9 +42,12 @@ class RegisterView(APIView):
 
 
 class ActivateView(APIView):
+    """Activate a user account via the uid/token link sent by email."""
+
     permission_classes = [AllowAny]
 
     def get(self, request, uidb64, token):
+        """Validate the token and mark the account as active."""
         user = services.activate_user(uidb64, token)
         if not user:
             return Response({'detail': 'Activation failed.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,9 +56,12 @@ class ActivateView(APIView):
 
 @method_decorator(ratelimit(key='ip', rate='10/m', method='POST', block=True), name='post')
 class LoginView(APIView):
+    """Authenticate a user and set JWT tokens as HTTP-only cookies."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """Validate credentials and return access_token + refresh_token cookies."""
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = authenticate(
@@ -70,9 +79,12 @@ class LoginView(APIView):
 
 
 class LogoutView(APIView):
+    """Blacklist the refresh token and clear JWT cookies."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """Blacklist the refresh_token cookie and delete both auth cookies."""
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({'detail': 'Refresh token missing.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -87,9 +99,12 @@ class LogoutView(APIView):
 
 
 class TokenRefreshView(APIView):
+    """Issue a new access token using the refresh_token cookie."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """Read the refresh_token cookie and set a new access_token cookie."""
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({'detail': 'Refresh token missing.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -105,9 +120,12 @@ class TokenRefreshView(APIView):
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
 class PasswordResetView(APIView):
+    """Send a password reset email to the given address."""
+
     permission_classes = [AllowAny]
 
     def post(self, request):
+        """Dispatch the reset email task. Always returns 200 to avoid email enumeration."""
         serializer = PasswordResetSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = services.get_user_for_password_reset(serializer.validated_data['email'])
@@ -117,9 +135,12 @@ class PasswordResetView(APIView):
 
 
 class PasswordConfirmView(APIView):
+    """Set a new password using the uid/token from the reset email."""
+
     permission_classes = [AllowAny]
 
     def post(self, request, uidb64, token):
+        """Validate the reset token and update the user's password."""
         serializer = PasswordConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = services.set_new_password(uidb64, token, serializer.validated_data['new_password'])
