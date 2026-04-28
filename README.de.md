@@ -10,13 +10,20 @@ Dieses Projekt wurde im Rahmen des Developer Akademie Lehrplans entwickelt.
 
 ## Quick Start mit Docker
 
-**Schritt 1 - Umgebungsdatei kopieren:**
+**Schritt 1 - Repository klonen und in den Backend-Ordner wechseln:**
+
+```bash
+git clone https://github.com/Danielluzius/videoflix-backend.git
+cd videoflix-backend/backend
+```
+
+**Schritt 2 - Umgebungsdatei kopieren:**
 
 ```bash
 cp .env.example .env
 ```
 
-**Schritt 2 - Werte in `.env` eintragen** (mindestens erforderlich):
+**Schritt 3 - Werte in `.env` eintragen** (mindestens erforderlich):
 
 ```env
 SECRET_KEY=dein-secret-key
@@ -32,7 +39,7 @@ FRONTEND_URL=http://127.0.0.1:5500
 
 > **Hinweis:** Du benötigst einen funktionierenden SMTP-Account, um Aktivierungs- und Passwort-Reset-Mails zu empfangen. Jeder Anbieter funktioniert (Gmail, Outlook, etc.). Für Gmail: ein [App-Passwort](https://myaccount.google.com/apppasswords) mit `smtp.gmail.com` auf Port `587` verwenden.
 
-**Schritt 3 - Alle Container starten:**
+**Schritt 4 - Alle Container starten:**
 
 ```bash
 docker compose up --build
@@ -40,7 +47,7 @@ docker compose up --build
 
 > **Keine zusätzliche Software erforderlich.** FFmpeg, PostgreSQL und Redis sind alle im Docker-Setup enthalten.
 
-**Schritt 4 - Frontend starten:**
+**Schritt 5 - Frontend starten:**
 
 Das [Videoflix Frontend](https://github.com/Developer-Akademie-Backendkurs/project.Videoflix) klonen und mit einem Live Server auf Port `5500` öffnen (z.B. die [VS Code Live Server Extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)).
 Dies ist erforderlich, damit Aktivierungs- und Passwort-Reset-Links korrekt funktionieren.
