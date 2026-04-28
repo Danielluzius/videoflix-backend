@@ -1,5 +1,7 @@
 ﻿# Videoflix Backend
 
+🌐 Language: English | [Deutsch](README.de.md)
+
 A Netflix-like video streaming backend built with Django and Django REST Framework. Videos are automatically converted to HLS format (480p / 720p / 1080p) in the background using FFmpeg and Django RQ. Authentication is handled via JWT tokens stored in HTTP-only cookies.
 
 This project was developed as part of the Developer Akademie curriculum.
