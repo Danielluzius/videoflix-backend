@@ -37,6 +37,12 @@ DEFAULT_FROM_EMAIL=du@beispiel.de
 FRONTEND_URL=http://127.0.0.1:5500
 ```
 
+> **Tipp:** Einen sicheren `SECRET_KEY` so generieren:
+>
+> ```bash
+> python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+> ```
+
 > **Hinweis:** Du benötigst einen funktionierenden SMTP-Account, um Aktivierungs- und Passwort-Reset-Mails zu empfangen. Jeder Anbieter funktioniert (Gmail, Outlook, etc.). Für Gmail: ein [App-Passwort](https://myaccount.google.com/apppasswords) mit `smtp.gmail.com` auf Port `587` verwenden.
 
 **Schritt 4 - Alle Container starten:**
@@ -115,11 +121,7 @@ backend/
 
 ## Umgebungsvariablen
 
-`.env.example` nach `.env` kopieren und Werte eintragen. So wird ein sicherer `SECRET_KEY` generiert:
-
-```bash
-python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
-```
+`.env.example` nach `.env` kopieren und Werte eintragen.
 
 | Variable               | Beispielwert                                  | Beschreibung                                                                     |
 | ---------------------- | --------------------------------------------- | -------------------------------------------------------------------------------- |
