@@ -38,6 +38,11 @@ docker compose up --build
 
 > **No additional software required.** FFmpeg, PostgreSQL, and Redis are all included in the Docker setup.
 
+**Step 4 - Start the frontend:**
+
+Clone the [Videoflix frontend](https://github.com/Developer-Akademie-Backendkurs/project.Videoflix) and open it with a Live Server on port `5500` (e.g. the [VS Code Live Server extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)).
+This is required for activation and password reset links to work correctly.
+
 The API is available at `http://localhost:8000/api/`.
 The admin panel is available at `http://localhost:8000/admin/` (login: `admin@example.com` / `adminpassword`).
 
