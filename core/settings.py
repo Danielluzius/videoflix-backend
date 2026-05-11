@@ -33,8 +33,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -120,11 +120,11 @@ SIMPLE_JWT = {
 }
 
 # CORS
-CORS_ALLOWED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5500,http://127.0.0.1:5500').split(',')
+CORS_ALLOWED_ORIGINS = os.environ.get('CORS_ALLOWED_ORIGINS', 'http://localhost:5500,http://127.0.0.1:5500,http://localhost:4200').split(',')
 CORS_ALLOW_CREDENTIALS = True
 
 # CSRF
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5500,http://127.0.0.1:5500').split(',')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', 'http://localhost:5500,http://127.0.0.1:5500,http://localhost:4200').split(',')
 CSRF_COOKIE_HTTPONLY = False
 CSRF_COOKIE_SAMESITE = 'Lax'
 
@@ -175,4 +175,4 @@ EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False') == 'True'
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', os.environ.get('EMAIL_HOST_USER', ''))
 
-FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://127.0.0.1:5500')
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:4200')
