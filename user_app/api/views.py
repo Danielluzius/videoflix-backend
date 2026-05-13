@@ -4,6 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
+from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.decorators import method_decorator
@@ -16,6 +17,17 @@ from user_app.api.serializers import (
 )
 from user_app import services
 from user_app.tasks import task_send_activation_email, task_send_password_reset_email
+
+
+def _cookie_kwargs() -> dict:
+    """Return cookie parameters depending on DEBUG setting.
+
+    In production (DEBUG=False) cookies require SameSite=None + Secure
+    because the frontend and backend are on different origins.
+    """
+    if settings.DEBUG:
+        return {'samesite': 'Lax', 'secure': False}
+    return {'samesite': 'None', 'secure': True}
 
 
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
@@ -72,9 +84,10 @@ class LoginView(APIView):
         if not user:
             return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user)
+        ck = _cookie_kwargs()
         response = Response({'detail': 'Login successful', 'user': {'id': user.pk, 'username': user.email}})
-        response.set_cookie('access_token', str(refresh.access_token), httponly=True, samesite='Lax')
-        response.set_cookie('refresh_token', str(refresh), httponly=True, samesite='Lax')
+        response.set_cookie('access_token', str(refresh.access_token), httponly=True, **ck)
+        response.set_cookie('refresh_token', str(refresh), httponly=True, **ck)
         return response
 
 
@@ -93,8 +106,9 @@ class LogoutView(APIView):
         except TokenError:
             pass
         response = Response({'detail': 'Logout successful! All tokens will be deleted. Refresh token is now invalid.'})
-        response.delete_cookie('access_token')
-        response.delete_cookie('refresh_token')
+        ck = _cookie_kwargs()
+        response.delete_cookie('access_token', samesite=ck['samesite'])
+        response.delete_cookie('refresh_token', samesite=ck['samesite'])
         return response
 
 
@@ -104,17 +118,24 @@ class TokenRefreshView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        """Read the refresh_token cookie and set a new access_token cookie."""
+        """Read the refresh_token cookie, rotate it and set new cookies."""
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({'detail': 'Refresh token missing.'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            refresh = RefreshToken(refresh_token)
-            new_access = str(refresh.access_token)
+            from django.contrib.auth import get_user_model
+            old_refresh = RefreshToken(refresh_token)
+            user = get_user_model().objects.get(pk=old_refresh['user_id'])
+            old_refresh.blacklist()
+            new_refresh = RefreshToken.for_user(user)
         except TokenError:
             return Response({'detail': 'Invalid refresh token.'}, status=status.HTTP_401_UNAUTHORIZED)
-        response = Response({'detail': 'Token refreshed', 'access': new_access})
-        response.set_cookie('access_token', new_access, httponly=True, samesite='Lax')
+        except Exception:
+            return Response({'detail': 'Token refresh failed.'}, status=status.HTTP_401_UNAUTHORIZED)
+        ck = _cookie_kwargs()
+        response = Response({'detail': 'Token refreshed'})
+        response.set_cookie('access_token', str(new_refresh.access_token), httponly=True, **ck)
+        response.set_cookie('refresh_token', str(new_refresh), httponly=True, **ck)
         return response
 
 
