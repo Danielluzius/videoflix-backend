@@ -1,6 +1,9 @@
-"""FFmpeg helpers: HLS conversion (480p/720p/1080p) and thumbnail extraction."""
+"""FFmpeg helpers: HLS conversion (480p/720p/1080p), preview clip, and thumbnail extraction."""
 import subprocess
 import os
+
+PREVIEW_MAX_COUNT = 10
+PREVIEW_DURATION_SECONDS = 15
 
 
 RESOLUTIONS = [
@@ -62,6 +65,22 @@ def generate_thumbnail(video_path: str, output_path: str) -> str:
         'ffmpeg', '-y', '-i', video_path,
         '-ss', '00:00:03', '-vframes', '1',
         '-vf', 'scale=1280:720',
+        output_path,
+    ]
+    subprocess.run(cmd, check=True, capture_output=True)
+    return output_path
+
+
+def generate_preview_clip(video_path: str, output_path: str) -> str:
+    """Extract the first PREVIEW_DURATION_SECONDS as a silent 720p MP4 for the preview section."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    cmd = [
+        'ffmpeg', '-y',
+        '-ss', '0', '-t', str(PREVIEW_DURATION_SECONDS),
+        '-i', video_path,
+        '-vf', 'scale=1280:720',
+        '-c:v', 'libx264', '-crf', '23', '-preset', 'fast',
+        '-an',
         output_path,
     ]
     subprocess.run(cmd, check=True, capture_output=True)

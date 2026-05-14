@@ -37,6 +37,19 @@ class VideoUploadView(APIView):
         )
 
 
+class HLSMasterView(APIView):
+    """Serve the HLS master playlist for a given video (lists all quality variants)."""
+
+    def get(self, request, video_id):
+        """Return the master.m3u8 file so HLS.js can perform adaptive bitrate selection."""
+        master_path = os.path.join(
+            settings.MEDIA_ROOT, 'videos', 'hls', str(video_id), 'master.m3u8'
+        )
+        if not os.path.exists(master_path):
+            raise Http404
+        return FileResponse(open(master_path, 'rb'), content_type='application/vnd.apple.mpegurl')
+
+
 class HLSPlaylistView(APIView):
     """Serve the HLS index playlist for a given video and resolution."""
 

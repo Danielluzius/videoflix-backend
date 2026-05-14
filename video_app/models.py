@@ -20,6 +20,7 @@ class Video(models.Model):
     category = models.CharField(max_length=50, choices=CATEGORY_CHOICES, default='drama')
     video_file = models.FileField(upload_to='videos/originals/')
     thumbnail = models.ImageField(upload_to='videos/thumbnails/', blank=True, null=True)
+    preview_clip = models.FileField(upload_to='videos/previews/', blank=True, null=True)
     hls_path = models.CharField(max_length=500, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     processing_done = models.BooleanField(default=False)
