@@ -25,14 +25,14 @@ def build_activation_link(user):
     """Return the frontend activation URL containing uid and token for the given user."""
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
-    return f"{settings.FRONTEND_URL}/pages/auth/activate.html?uid={uid}&token={token}"
+    return f"{settings.FRONTEND_URL}/auth/activate?uid={uid}&token={token}"
 
 
 def build_password_reset_link(user):
     """Return the frontend password-reset URL containing uid and token for the given user."""
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
-    return f"{settings.FRONTEND_URL}/pages/auth/confirm_password.html?uid={uid}&token={token}"
+    return f"{settings.FRONTEND_URL}/auth/confirm-password?uid={uid}&token={token}"
 
 
 def send_activation_email(user):
