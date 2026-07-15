@@ -176,3 +176,6 @@ EMAIL_USE_SSL = os.environ.get('EMAIL_USE_SSL', 'False') == 'True'
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', os.environ.get('EMAIL_HOST_USER', ''))
 
 FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:4200')
+
+# Guest login — email of the shared demo account (must exist and be active)
+GUEST_USER_EMAIL = os.environ.get('GUEST_USER_EMAIL', 'guest@videoflix.demo')

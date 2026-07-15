@@ -5,7 +5,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import TokenError
 from django.conf import settings
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
@@ -86,6 +86,30 @@ class LoginView(APIView):
         refresh = RefreshToken.for_user(user)
         ck = _cookie_kwargs()
         response = Response({'detail': 'Login successful', 'user': {'id': user.pk, 'username': user.email}})
+        response.set_cookie('access_token', str(refresh.access_token), httponly=True, **ck)
+        response.set_cookie('refresh_token', str(refresh), httponly=True, **ck)
+        return response
+
+
+@method_decorator(ratelimit(key='ip', rate='20/m', method='POST', block=True), name='post')
+class GuestLoginView(APIView):
+    """Issue JWT cookies for the shared guest account."""
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        """Look up the guest user and return JWT cookies without requiring credentials."""
+        guest_email = getattr(settings, 'GUEST_USER_EMAIL', None)
+        if not guest_email:
+            return Response({'detail': 'Guest login not configured.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        User = get_user_model()
+        try:
+            user = User.objects.get(email=guest_email, is_active=True)
+        except User.DoesNotExist:
+            return Response({'detail': 'Guest account not found.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        refresh = RefreshToken.for_user(user)
+        ck = _cookie_kwargs()
+        response = Response({'detail': 'Guest login successful', 'user': {'id': user.pk, 'username': user.email}})
         response.set_cookie('access_token', str(refresh.access_token), httponly=True, **ck)
         response.set_cookie('refresh_token', str(refresh), httponly=True, **ck)
         return response
