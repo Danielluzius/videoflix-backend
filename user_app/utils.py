@@ -35,35 +35,28 @@ def build_password_reset_link(user):
     return f"{settings.FRONTEND_URL}/auth/confirm-password?uid={uid}&token={token}"
 
 
-def send_activation_email(user):
+def _send_email(subject: str, text: str, html: str, recipient: str) -> None:
+    """Send an HTML email with an inline Videoflix logo to a single recipient."""
+    msg = EmailMultiAlternatives(
+        subject=subject,
+        body=text,
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        to=[recipient],
+    )
+    msg.attach_alternative(html, 'text/html')
+    _attach_logo(msg)
+    msg.send()
+
+
+def send_activation_email(user) -> None:
     """Build and send an HTML activation email with an inline logo to the given user."""
     link = build_activation_link(user)
-    context = {'link': link, 'email': user.email}
-    html = render_to_string('emails/activation_email.html', context)
-    text = f"Aktiviere deinen Account: {link}"
-    msg = EmailMultiAlternatives(
-        subject='Confirm your email',
-        body=text,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
-    )
-    msg.attach_alternative(html, 'text/html')
-    _attach_logo(msg)
-    msg.send()
+    html = render_to_string('emails/activation_email.html', {'link': link, 'email': user.email})
+    _send_email('Confirm your email', f"Activate your account: {link}", html, user.email)
 
 
-def send_password_reset_email(user):
+def send_password_reset_email(user) -> None:
     """Build and send an HTML password-reset email with an inline logo to the given user."""
     link = build_password_reset_link(user)
-    context = {'link': link, 'email': user.email}
-    html = render_to_string('emails/password_reset_email.html', context)
-    text = f"Passwort zurücksetzen: {link}"
-    msg = EmailMultiAlternatives(
-        subject='Reset your Password',
-        body=text,
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        to=[user.email],
-    )
-    msg.attach_alternative(html, 'text/html')
-    _attach_logo(msg)
-    msg.send()
+    html = render_to_string('emails/password_reset_email.html', {'link': link, 'email': user.email})
+    _send_email('Reset your Password', f"Reset your password: {link}", html, user.email)

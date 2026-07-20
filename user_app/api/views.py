@@ -30,6 +30,22 @@ def _cookie_kwargs() -> dict:
     return {'samesite': 'None', 'secure': True}
 
 
+def _set_jwt_cookies(response: Response, refresh: RefreshToken) -> None:
+    """Attach access_token and refresh_token as HTTP-only cookies to the response."""
+    ck = _cookie_kwargs()
+    response.set_cookie('access_token', str(refresh.access_token), httponly=True, **ck)
+    response.set_cookie('refresh_token', str(refresh), httponly=True, **ck)
+
+
+def _rotate_refresh_token(refresh_token_str: str) -> RefreshToken:
+    """Blacklist the old refresh token and issue a new one for the same user."""
+    from django.contrib.auth import get_user_model
+    old = RefreshToken(refresh_token_str)
+    user = get_user_model().objects.get(pk=old['user_id'])
+    old.blacklist()
+    return RefreshToken.for_user(user)
+
+
 @method_decorator(ratelimit(key='ip', rate='5/m', method='POST', block=True), name='post')
 class RegisterView(APIView):
     """Register a new user account and send a confirmation email."""
@@ -84,10 +100,8 @@ class LoginView(APIView):
         if not user:
             return Response({'detail': 'Invalid credentials.'}, status=status.HTTP_401_UNAUTHORIZED)
         refresh = RefreshToken.for_user(user)
-        ck = _cookie_kwargs()
         response = Response({'detail': 'Login successful', 'user': {'id': user.pk, 'username': user.email}})
-        response.set_cookie('access_token', str(refresh.access_token), httponly=True, **ck)
-        response.set_cookie('refresh_token', str(refresh), httponly=True, **ck)
+        _set_jwt_cookies(response, refresh)
         return response
 
 
@@ -108,10 +122,8 @@ class GuestLoginView(APIView):
         except User.DoesNotExist:
             return Response({'detail': 'Guest account not found.'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
         refresh = RefreshToken.for_user(user)
-        ck = _cookie_kwargs()
         response = Response({'detail': 'Guest login successful', 'user': {'id': user.pk, 'username': user.email}})
-        response.set_cookie('access_token', str(refresh.access_token), httponly=True, **ck)
-        response.set_cookie('refresh_token', str(refresh), httponly=True, **ck)
+        _set_jwt_cookies(response, refresh)
         return response
 
 
@@ -129,8 +141,8 @@ class LogoutView(APIView):
             RefreshToken(refresh_token).blacklist()
         except TokenError:
             pass
-        response = Response({'detail': 'Logout successful! All tokens will be deleted. Refresh token is now invalid.'})
         ck = _cookie_kwargs()
+        response = Response({'detail': 'Logout successful.'})
         response.delete_cookie('access_token', samesite=ck['samesite'])
         response.delete_cookie('refresh_token', samesite=ck['samesite'])
         return response
@@ -147,19 +159,13 @@ class TokenRefreshView(APIView):
         if not refresh_token:
             return Response({'detail': 'Refresh token missing.'}, status=status.HTTP_400_BAD_REQUEST)
         try:
-            from django.contrib.auth import get_user_model
-            old_refresh = RefreshToken(refresh_token)
-            user = get_user_model().objects.get(pk=old_refresh['user_id'])
-            old_refresh.blacklist()
-            new_refresh = RefreshToken.for_user(user)
+            new_refresh = _rotate_refresh_token(refresh_token)
         except TokenError:
             return Response({'detail': 'Invalid refresh token.'}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception:
             return Response({'detail': 'Token refresh failed.'}, status=status.HTTP_401_UNAUTHORIZED)
-        ck = _cookie_kwargs()
         response = Response({'detail': 'Token refreshed'})
-        response.set_cookie('access_token', str(new_refresh.access_token), httponly=True, **ck)
-        response.set_cookie('refresh_token', str(new_refresh), httponly=True, **ck)
+        _set_jwt_cookies(response, new_refresh)
         return response
 
 

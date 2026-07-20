@@ -5,46 +5,49 @@ from video_app.models import Video
 from video_app.utils import convert_to_hls, generate_thumbnail, generate_preview_clip, PREVIEW_MAX_COUNT
 
 
-@django_rq.job('videos')
-def process_video(video_id: int):
-    """Background task: convert an uploaded video to HLS, generate a thumbnail and preview clip.
-
-    Converts to 480p, 720p, and 1080p HLS variants, extracts a thumbnail at 3 s,
-    generates a 15 s silent 720p preview clip, enforces a max of PREVIEW_MAX_COUNT
-    preview clips on disk, and sets processing_done=True on the Video model.
-    """
-    video = Video.objects.get(pk=video_id)
-    video_path = video.video_file.path
-
-    # HLS output directory: media/videos/hls/<video_id>/
+def _build_hls(video_id: int, video_path: str) -> str:
+    """Convert to HLS variants; return the relative path to master.m3u8."""
     hls_dir = os.path.join(settings.MEDIA_ROOT, 'videos', 'hls', str(video_id))
     master_path = convert_to_hls(video_path, hls_dir)
-    video.hls_path = os.path.relpath(master_path, settings.MEDIA_ROOT)
+    return os.path.relpath(master_path, settings.MEDIA_ROOT)
 
-    # Thumbnail
-    thumbnail_path = os.path.join(settings.MEDIA_ROOT, 'videos', 'thumbnails', f'{video_id}.jpg')
-    generate_thumbnail(video_path, thumbnail_path)
-    video.thumbnail = os.path.relpath(thumbnail_path, settings.MEDIA_ROOT)
 
-    # Preview clip (skip if a custom one was already uploaded)
-    if not video.preview_clip:
-        preview_path = os.path.join(settings.MEDIA_ROOT, 'videos', 'previews', f'{video_id}.mp4')
-        generate_preview_clip(video_path, preview_path)
-        video.preview_clip = os.path.relpath(preview_path, settings.MEDIA_ROOT)
+def _build_thumbnail(video_id: int, video_path: str) -> str:
+    """Extract a thumbnail frame; return the relative path."""
+    out = os.path.join(settings.MEDIA_ROOT, 'videos', 'thumbnails', f'{video_id}.jpg')
+    generate_thumbnail(video_path, out)
+    return os.path.relpath(out, settings.MEDIA_ROOT)
 
-    video.processing_done = True
-    video.save()
 
-    # Keep only the PREVIEW_MAX_COUNT newest preview clips on disk
-    videos_with_preview = (
+def _build_preview_clip(video_id: int, video_path: str) -> str:
+    """Generate a short preview clip; return the relative path."""
+    out = os.path.join(settings.MEDIA_ROOT, 'videos', 'previews', f'{video_id}.mp4')
+    generate_preview_clip(video_path, out)
+    return os.path.relpath(out, settings.MEDIA_ROOT)
+
+
+def _prune_old_previews() -> None:
+    """Delete the oldest preview clips when the total exceeds PREVIEW_MAX_COUNT."""
+    qs = (
         Video.objects
         .filter(processing_done=True, preview_clip__isnull=False)
         .exclude(preview_clip='')
         .order_by('created_at')
     )
-    overflow = videos_with_preview.count() - PREVIEW_MAX_COUNT
-    if overflow > 0:
-        for old_video in videos_with_preview[:overflow]:
-            old_video.preview_clip.delete(save=False)
-            old_video.preview_clip = None
-            old_video.save(update_fields=['preview_clip'])
+    for old in qs[:max(qs.count() - PREVIEW_MAX_COUNT, 0)]:
+        old.preview_clip.delete(save=False)
+        old.preview_clip = None
+        old.save(update_fields=['preview_clip'])
+
+
+@django_rq.job('videos')
+def process_video(video_id: int) -> None:
+    """Background task: convert an uploaded video to HLS, generate thumbnail and preview clip."""
+    video = Video.objects.get(pk=video_id)
+    video.hls_path = _build_hls(video_id, video.video_file.path)
+    video.thumbnail = _build_thumbnail(video_id, video.video_file.path)
+    if not video.preview_clip:
+        video.preview_clip = _build_preview_clip(video_id, video.video_file.path)
+    video.processing_done = True
+    video.save()
+    _prune_old_previews()
