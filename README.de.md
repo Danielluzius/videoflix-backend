@@ -55,7 +55,7 @@ docker compose up --build
 
 **Schritt 5 - Frontend starten:**
 
-In den `frontend/`-Ordner wechseln und den Angular-Entwicklungsserver starten:
+Das [Videoflix Frontend](https://github.com/Danielluzius/videoflix-frontend) klonen und den Angular-Entwicklungsserver starten:
 
 ```bash
 cd ../frontend
