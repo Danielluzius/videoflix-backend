@@ -34,7 +34,7 @@ EMAIL_HOST=smtp.dein-anbieter.com
 EMAIL_HOST_USER=du@beispiel.de
 EMAIL_HOST_PASSWORD=deinpasswort
 DEFAULT_FROM_EMAIL=du@beispiel.de
-FRONTEND_URL=http://127.0.0.1:5500
+FRONTEND_URL=http://localhost:4200
 ```
 
 > **Tipp:** Einen sicheren `SECRET_KEY` so generieren:
@@ -55,8 +55,15 @@ docker compose up --build
 
 **Schritt 5 - Frontend starten:**
 
-Das [Videoflix Frontend](https://github.com/Developer-Akademie-Backendkurs/project.Videoflix) klonen und mit einem Live Server auf Port `5500` öffnen (z.B. die [VS Code Live Server Extension](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)).
-Dies ist erforderlich, damit Aktivierungs- und Passwort-Reset-Links korrekt funktionieren.
+In den `frontend/`-Ordner wechseln und den Angular-Entwicklungsserver starten:
+
+```bash
+cd ../frontend
+npm install
+ng serve
+```
+
+Das Frontend ist dann erreichbar unter `http://localhost:4200`.
 
 Die API ist erreichbar unter `http://localhost:8000/api/`.
 Das Admin-Panel ist erreichbar unter `http://localhost:8000/admin/` (Login: `admin@example.com` / `adminpassword`).
@@ -123,28 +130,28 @@ backend/
 
 `.env.example` nach `.env` kopieren und Werte eintragen.
 
-| Variable               | Beispielwert                                  | Beschreibung                                                                     |
-| ---------------------- | --------------------------------------------- | -------------------------------------------------------------------------------- |
-| `SECRET_KEY`           | `django-insecure-...`                         | Django Secret Key. Für Produktion neu generieren.                                |
-| `DEBUG`                | `True`                                        | In Produktion auf `False` setzen.                                                |
-| `ALLOWED_HOSTS`        | `localhost,127.0.0.1`                         | Kommagetrennte Liste erlaubter Hosts.                                            |
-| `DB_NAME`              | `videoflix`                                   | PostgreSQL-Datenbankname.                                                        |
-| `DB_USER`              | `videoflix_user`                              | PostgreSQL-Benutzername.                                                         |
-| `DB_PASSWORD`          | `deinpasswort`                                | PostgreSQL-Passwort.                                                             |
-| `DB_HOST`              | `localhost`                                   | PostgreSQL-Host. In Docker `db` verwenden.                                       |
-| `DB_PORT`              | `5432`                                        | PostgreSQL-Port.                                                                 |
-| `REDIS_HOST`           | `localhost`                                   | Redis-Host. In Docker `redis` verwenden.                                         |
-| `REDIS_PORT`           | `6379`                                        | Redis-Port.                                                                      |
-| `REDIS_DB`             | `0`                                           | Redis-Datenbankindex für RQ.                                                     |
-| `REDIS_LOCATION`       | `redis://localhost:6379/1`                    | Vollständige Redis-URL für Django-Cache. In Docker `redis://redis:6379/1`.       |
-| `EMAIL_HOST`           | `smtp.dein-anbieter.com`                      | SMTP-Server-Hostname.                                                            |
-| `EMAIL_PORT`           | `587`                                         | SMTP-Port.                                                                       |
-| `EMAIL_HOST_USER`      | `du@beispiel.de`                              | SMTP-Login-Benutzername.                                                         |
-| `EMAIL_HOST_PASSWORD`  | `deinpasswort`                                | SMTP-Login-Passwort.                                                             |
-| `EMAIL_USE_TLS`        | `True`                                        | TLS für SMTP aktivieren.                                                         |
-| `DEFAULT_FROM_EMAIL`   | `du@beispiel.de`                              | Absenderadresse in E-Mails.                                                      |
-| `FRONTEND_URL`         | `http://127.0.0.1:5500`                       | Basis-URL des Frontends. Wird in Aktivierungs- und Passwort-Reset-Links genutzt. |
-| `CSRF_TRUSTED_ORIGINS` | `http://localhost:5500,http://127.0.0.1:5500` | Kommagetrennte vertrauenswürdige Origins für CSRF und CORS.                      |
+| Variable               | Beispielwert               | Beschreibung                                                                     |
+| ---------------------- | -------------------------- | -------------------------------------------------------------------------------- |
+| `SECRET_KEY`           | `django-insecure-...`      | Django Secret Key. Für Produktion neu generieren.                                |
+| `DEBUG`                | `True`                     | In Produktion auf `False` setzen.                                                |
+| `ALLOWED_HOSTS`        | `localhost,127.0.0.1`      | Kommagetrennte Liste erlaubter Hosts.                                            |
+| `DB_NAME`              | `videoflix`                | PostgreSQL-Datenbankname.                                                        |
+| `DB_USER`              | `videoflix_user`           | PostgreSQL-Benutzername.                                                         |
+| `DB_PASSWORD`          | `deinpasswort`             | PostgreSQL-Passwort.                                                             |
+| `DB_HOST`              | `localhost`                | PostgreSQL-Host. In Docker `db` verwenden.                                       |
+| `DB_PORT`              | `5432`                     | PostgreSQL-Port.                                                                 |
+| `REDIS_HOST`           | `localhost`                | Redis-Host. In Docker `redis` verwenden.                                         |
+| `REDIS_PORT`           | `6379`                     | Redis-Port.                                                                      |
+| `REDIS_DB`             | `0`                        | Redis-Datenbankindex für RQ.                                                     |
+| `REDIS_LOCATION`       | `redis://localhost:6379/1` | Vollständige Redis-URL für Django-Cache. In Docker `redis://redis:6379/1`.       |
+| `EMAIL_HOST`           | `smtp.dein-anbieter.com`   | SMTP-Server-Hostname.                                                            |
+| `EMAIL_PORT`           | `587`                      | SMTP-Port.                                                                       |
+| `EMAIL_HOST_USER`      | `du@beispiel.de`           | SMTP-Login-Benutzername.                                                         |
+| `EMAIL_HOST_PASSWORD`  | `deinpasswort`             | SMTP-Login-Passwort.                                                             |
+| `EMAIL_USE_TLS`        | `True`                     | TLS für SMTP aktivieren.                                                         |
+| `DEFAULT_FROM_EMAIL`   | `du@beispiel.de`           | Absenderadresse in E-Mails.                                                      |
+| `FRONTEND_URL`         | `http://localhost:4200`    | Basis-URL des Frontends. Wird in Aktivierungs- und Passwort-Reset-Links genutzt. |
+| `CSRF_TRUSTED_ORIGINS` | `http://localhost:4200`    | Kommagetrennte vertrauenswürdige Origins für CSRF und CORS.                      |
 
 ---
 
@@ -284,14 +291,26 @@ Lädt ein neues Video hoch und stellt es zur Hintergrundverarbeitung in die Wart
 **Erfordert:** Admin-Authentifizierung (`is_staff = True`)
 **Content-Type:** `multipart/form-data`
 
-| Feld          | Typ             | Pflicht |
-| ------------- | --------------- | ------- |
-| `title`       | string          | ja      |
-| `description` | string          | nein    |
-| `category`    | string (choice) | ja      |
-| `video_file`  | file            | ja      |
+| Feld           | Typ             | Pflicht |
+| -------------- | --------------- | ------- |
+| `title`        | string          | ja      |
+| `description`  | string          | nein    |
+| `category`     | string (choice) | ja      |
+| `video_file`   | file            | ja      |
+| `preview_clip` | file            | nein    |
 
 **Antworten:** `201` Upload in Warteschlange - `400` Validierungsfehler - `403` Kein Admin
+
+</details>
+
+<details>
+<summary>GET /api/video/&lt;video_id&gt;/master.m3u8 - HLS-Master-Playlist</summary>
+
+Gibt die HLS-Master-Playlist für adaptives Bitrate-Streaming zurück. Listet alle verfügbaren Qualitätsvarianten (480p, 720p, 1080p) auf.
+
+**Erfordert:** Authentifizierung (access_token Cookie)
+
+**Antworten:** `200` Master-Playlist-Datei - `404` Nicht gefunden
 
 </details>
 
@@ -333,7 +352,9 @@ Django RQ führt zwei Arten von Hintergrundaufgaben aus:
 - `process_video(video_id)` - ausgelöst via `post_save`-Signal bei neuen Video-Uploads
   1. Führt FFmpeg aus - erzeugt 480p / 720p / 1080p HLS-Varianten + `master.m3u8`
   2. Extrahiert Thumbnail bei der 3-Sekunden-Marke
-  3. Speichert Pfade im Video-Modell und setzt `processing_done = True`
+  3. Generiert einen 15-Sekunden stummen 720p Preview-Clip (übersprungen wenn bereits ein eigener hochgeladen wurde)
+  4. Speichert Pfade im Video-Modell und setzt `processing_done = True`
+  5. Löscht älteste Preview-Clips wenn mehr als 10 auf dem Server gespeichert sind
 
 Nur Videos mit `processing_done = True` werden vom Video-Listen-Endpunkt zurückgegeben.
 
