@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Ensure media files created inside the container are world-readable
+# so that the host Nginx can serve them directly from the Docker volume.
+umask 022
 echo "Waiting for PostgreSQL at $DB_HOST:$DB_PORT..."
 # -q for "quiet" (no output except errors)
 # Loop runs as long as pg_isready does NOT succeed (exit code != 0)
