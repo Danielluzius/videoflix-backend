@@ -23,7 +23,7 @@ services:
     container_name: videoflix_backend
     volumes:
       - .:/app
-      - videoflix_media:/app/media
+      - /srv/videoflix/media:/app/media
       - videoflix_static:/app/static
     ports:
       - '8002:8000'
@@ -39,5 +39,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  videoflix_media:
   videoflix_static:
