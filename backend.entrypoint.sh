@@ -13,7 +13,6 @@ echo "PostgreSQL is ready - continuing..."
 
 # Run Django management commands
 python manage.py collectstatic --noinput
-python manage.py makemigrations
 python manage.py migrate
 
 # Create a superuser using environment variables
@@ -24,7 +23,9 @@ User = get_user_model()
 
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
 email = os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
-password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'adminpassword')
+password = os.environ.get('DJANGO_SUPERUSER_PASSWORD')
+if not password:
+    raise RuntimeError('DJANGO_SUPERUSER_PASSWORD environment variable is required.')
 
 if not User.objects.filter(email=email).exists():
     print(f"Creating superuser '{username}'...")
