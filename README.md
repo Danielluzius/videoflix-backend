@@ -65,8 +65,8 @@ ng serve
 
 The frontend is then available at `http://localhost:4200`.
 
-The API is available at `http://localhost:8000/api/`.
-The admin panel is available at `http://localhost:8000/admin/` (login: `admin@example.com` / `adminpassword`).
+The API is available at `http://localhost:8002/api/`.
+The admin panel is available at `http://localhost:8002/admin/` (login: `admin@example.com` / `adminpassword`).
 
 ---
 
